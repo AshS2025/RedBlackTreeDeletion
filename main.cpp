@@ -13,7 +13,20 @@ void rightParentRotation(Node*);
 void leftParentRotation(Node*);
 void addNode(Node*&, Node*, Node*);
 void printTree(Node*, int);
-void removeNode(int direction, Node* current, int value);
+
+void removeNode(Node* current);
+void fixDeleteTree (Node* current, bool&);
+void deletebyCase(Node* current, bool& deleted);
+void swap(Node*, Node*);
+Node* findDeleteNode(Node*, Node*, int);
+Node* findSuccessor(Node*);
+
+
+void caseTwoDeletion(Node*, bool&);
+void caseThreeDeletion(Node*, bool&);
+void caseFourDeletion(Node*, bool&);
+void caseFiveDeletion(Node*, bool&);
+void caseSixDeletion(Node*, bool&);
 
 void caseOneInsertion(Node* &, Node*);
 void caseTwoInsertion(Node* &, Node*);
@@ -45,7 +58,11 @@ int main(){
     cout << "what number do you want to delete?" << endl;
     int toDelete;
     cin >> toDelete;
-    removeNode(0, root, toDelete);
+    Node* current = findDeleteNode(root, root, toDelete);
+    cout << current->getData() << endl;
+    cout << "found the node" << endl;
+    bool deleted = false;
+    fixDeleteTree(current, deleted);
   }
   
   if (strcmp(command, "ADD") == 0){
@@ -407,178 +424,50 @@ void rightGrandRotation(Node* &root, Node* newNode){
   }
 }
 
-//void removeNode(int direction, Node* current sdf
 
-
-/*
-void removeNode(Node* &root, Node* current, int value){
-  //root
-  if (root->getData() == value){
-    //root has no children
-    if(root->getRight() == NULL && root->getLeft() == NULL){
-      delete root;
-    }
-
-    //one child - right child
-    else if (root->getRight() != NULL && root->getLeft() == NULL){
-      Node* temp = root->getRight();
-      delete root;
-      root = temp;
-    }
-
-    //one child - left child
-    else if (root->getLeft() != NULL && root->getRight() == NULL){
-      Node* temp = root->getLeft();
-      delete root;
-      root = tempNode;
-    }
-
-
-    //two children
-    else if (root->getRight() != NULL && root->getLeft() != NULL){
-      //fidn smallest value on right side
-      Node* temp = root->getRight();
-      while(tempNode->getLeft() != NULL){
-	temp = temp->getLeft();
-      }
-      Node* tempTwo = new Node();
-      tempTwo->setData(temp->getData());
-      remove(root, root, temp->getData());
-      tempTwo->setLeft(root->getLeft());
-      tempTwo->setRight(root->getRight());
-      root = tempTwo;
-    }
-
-
-   }
-
-  else if (current->getData() > value){
-    
-    if(current->getLeft()->getData() != value){
-      removeNode (root, current->getLeft(), value);
-      
-    }
-
-    else{
-
-      if(current->getLeft()->getLeft() == NULL && current->getLeft()->getRight() == NULL){
-	delete current->getLeft();
-	current->setLeft(NULL);
-      }
-
-      else if (current->getLeft()->getLeft() != NULL && current->getLeft()->getRight() == NULL){
-	Node* temp = current->getLeft()->getLeft();
-	delete current->getLeft();
-	current->setLeft(temp);
-      }
-
-      else if (current->getLeft()->getLeft() == NULL && current->getLeft()->getRight() != NULL){
-	Node* temp = current->getLeft()->getLeft();
-	delete current->getLeft();
-	current->setLeft(temp);
-	
-      }
-
-      else if (current->getLeft()->getLeft() != NULL && current->getLeft()->getRight() != NULL){
-	Node* temp = current->getLeft()->getLeft();
-	while (temp->getRight() != NULL){
-	  temp = temp->getRight();
-	}
-
-	Node* tempTwo = new Node();
-	tempTwo->setData(temp->getData());
-	removeNode(root, current, temp->getData());
-	tempTwo->setLeft(current->getLeft()->getLeft());
-	tempTwo->setRight(current->getLeft()->getRight());
-	current->setLeft(tempTwo);
-      }
-    }
-
-
-   }
-
-  //same as above but different direction
-
-  else if (current->getData() < value){
-    if(current->getRight()->getData() ! = value){
-      removeNode(root, current->getRight(), value);
-    }
-
-    else {
-      if (current->getRight()->getLeft() == NULL && current->getRight()->getRight() == NULL){
-	delete current->getRight();
-	current->setRight(NULL);
-      }
-
-      else if (current->getRight()->getLeft() != NULL && current->getRight()->getRight() == NULL){
-	Node* temp = current->getRight()->getLeft();
-	delete current->getRight();
-	current->setRight(temp);
-      }
-
-      else if (current->getRight()->getLeft() == NULL && current->getRight()->getRight() != NULL){
-	Node* temp = current->getRight()->getRight();
-	wdelete current->getRight();
-	current->setRight(temp);
-      }
-
-      else if (current->getRight()->getLeft() != NULL && current->getRight()->getRight() != NULL){
-	Node* temp = current->getRight()->getRight();
-	while(temp->getLeft() != NULL){
-	  temp = temp->getLeft();
-	}
-
-	Node* tempTwo = new Node();
-	tempTwo->setData(temp->getData());
-	removeNode(root, current, temp->getData());
-	tempTwo->setLeft(current->getRight()->getLeft());
-	tempTwo->setRight(current->getRight()->getRight());
-	current->setRight(tempTwo);
-      }
-    }
-  }
-
-  }
-
-*/
 //vikram helped me rewrite my removeNode function
-void removeNode(int direction, Node* current, int toDelete){
-  if (current->getData() == toDelete){
+void removeNode(Node* current){
     if (current->getRight() == NULL && current->getLeft() == NULL){
       if (current->getParent() != NULL){
-      if (direction == 0){
+	if (current->getParent()->getLeft() == current){
 	current->getParent()->setLeft(NULL);
       }
-      else if (direction == 1){
+	else if (current->getParent()->getRight() == current){
 	current->getParent()->setRight(NULL);
       }
     }
     
     delete current;
+    //if there are no children just set the parent's child to null and delete
   }
 
   else if (current->getLeft() == NULL){
-    if(direction == 0){
+    if(current->getParent()->getLeft() == current){
       current->getParent()->setRight(current->getRight());
     }
 
-    else if (direction == 1){
-      current->getParent()->setLeft(current->getRight());
+    else if (current->getParent()->getRight() == current){
+	current->getParent()->setLeft(current->getRight());
     }
+    
     current->getRight()->setParent(current->getParent());
     delete current;
+
+    //if there is a right child, set the right child as the child of the parent
   }
 
   else if (current->getRight() == NULL){
-    if (direction == 0){
+    if (current->getParent()->getLeft() == current){
       current->getParent()->setLeft(current->getLeft());
     }
-    else if (direction == 1){
+    else if (current->getParent()->getRight() == current){
       current->getParent()->setRight(current->getLeft());
     }
 
     current->getLeft()->setParent(current->getParent());
     delete current;
+
+    //if there's a left child, set the left child as the child of the parent
   }
 
   else {
@@ -593,21 +482,238 @@ void removeNode(int direction, Node* current, int toDelete){
 
     if (count == 0){
       current->setRight(temp->getRight());
+      temp->getParent()->setRight(temp->getRight());
+      temp->getRight()->setParent(temp->getParent());
     }
 
     else {
-      temp->getParent()->setLeft(temp->getLeft());
+      temp->getParent()->setLeft(temp->getRight());
+      temp->getRight()->setParent(temp->getParent());
     }
 
     delete temp;
+
+    //if there are two children, find the smallest on the right side of the tree and set it 
   }
 
   }
+
+
+
+void fixDeleteTree(Node* current, bool &deleted){
+  cout << "inside fixDeleteTree" << endl;
+  cout << current->getData() << endl;
+  
+  //if current is black and right child is red (and one child)
+  if (current->getColor() == 'b' && current->getRight() != NULL && current->getRight()->getColor() == 'r' && current->getLeft() == NULL){
+    cout << "inside the if statement" << endl;
+    current->getRight()->setColor('b');
+    removeNode(current); //add parameters
+  }
+
+  //if current is black and left child is red (and one child)
+  if (current->getColor() == 'b' && current->getLeft() != NULL && current->getLeft()->getColor() == 'r' && current->getRight() == NULL){
+    current->getLeft()->setColor('b');
+    removeNode(current); // add parameters
+  }
+
+  //if current red and one child
+  if (current->getColor() == 'r' && current->getLeft() != NULL && current->getRight() == NULL){
+    removeNode(current); //add parametes
+  }
+
+  if (current->getColor() == 'r' && current->getRight() != NULL && current->getLeft() == NULL){
+    removeNode(current); //add parameters
+  }
+
+  //if two children
+  if (current->getRight() != NULL && current->getLeft() != NULL){
+    Node* successor = findSuccessor(current); 
+    swap(current, successor); //add parameters
+    fixDeleteTree(successor, deleted); //call on successor
+  }
+
+  if (current->getColor() == 'b' && current->getLeft() == NULL && (current->getRight() == NULL || current->getRight()->getColor() == 'b')){
+    cout << "getting inside bb if statement" << endl;
+    deletebyCase(current, deleted);
+
+  }
+
+}
+
+void deletebyCase(Node* current, bool &deleted){   
+
+//case 2
+  if (current->getParent()->getColor() == 'b' && current->getSibling()->getColor() == 'r' && (current->getSibling()->getRight() == NULL || current->getSibling()->getRight()->getColor() == 'b') && (current->getSibling()->getLeft() == NULL || current->getSibling()->getLeft()->getColor() == 'b')){
+  caseTwoDeletion(current, deleted);
+ }
+
+//case 3
+  if (current->getParent()->getColor() == 'b' && current->getSibling()->getColor() == 'b' && (current->getSibling()->getRight() == NULL || current->getSibling()->getRight()->getColor() == 'b') && (current->getSibling()->getLeft() == NULL || current->getSibling()->getLeft()->getColor() == 'b')){
+      caseThreeDeletion(current, deleted); //add parameters
+    }
+    
+    //case 4
+    if (current->getParent()->getColor() == 'r' && current->getSibling()->getColor() == 'b' && (current->getSibling()->getRight() == NULL || current->getSibling()->getRight()->getColor() == 'b') && (current->getSibling()->getLeft() == NULL || current->getSibling()->getLeft()->getColor() == 'b')) {
+      caseFourDeletion(current, deleted); //add parameters
+    }
+
+//case 5
+
+    if (((current->getSibling()->getData() > current->getData()) && (current->getParent()->getColor() == 'b' && current->getSibling()->getColor() == 'b' && current->getSibling()->getLeft()->getColor() == 'r' && (current->getSibling()->getRight() == NULL || current->getSibling()->getRight()->getColor() == 'b'))) || ((current->getSibling()->getData() < current->getData()) && (current->getParent()->getColor() == 'b' && current->getSibling()->getColor() == 'b' && current->getSibling()->getRight()->getColor() == 'r' && (current->getSibling()->getLeft() == NULL || current->getSibling()->getLeft()->getColor() == 'b')))) {
+      cout << "inside case 5 if statement" << endl;
+  caseFiveDeletion(current, deleted);
+ }
+
+
+  //case 6
+
+if (((current->getSibling()->getData() > current->getData()) && (current->getSibling()->getColor() == 'b' && current->getSibling()->getRight()->getColor() == 'r')) || ((current->getSibling()->getData() < current->getData()) && (current->getSibling()->getColor() == 'b' && current->getSibling()->getLeft()->getColor() == 'r'))){
+  caseSixDeletion(current, deleted);
+ }
+
+}
+
+
+
+void caseTwoDeletion(Node* current, bool &deleted){
+  if (current->getSibling()->getData() > current->getData()){
+    //if double black is the left child
+    Node* tempS = current->getSibling();
+    Node* tempP = current->getParent();
+    leftParentRotation(current);
+    tempS->setColor('b');
+    tempP->setColor('r');
+  }
+
+  else if (current->getSibling()->getData() < current->getData()){
+      //if double black is the right child
+    Node* tempS = current->getSibling();
+    Node* tempP = current->getParent();
+    rightParentRotation(current);
+    tempS->setColor('b');
+    tempP->setColor('r');
+    }
+
+  deletebyCase(current, deleted);
+}
+
+
+
+void caseThreeDeletion(Node* current, bool &deleted){
+  current->getSibling()->setColor('r');
+  Node* temp = current->getParent();
+  if (deleted == false){
+    removeNode(current); //add parameters
+    deleted = true;
+  }
+  deletebyCase(temp, deleted);
+}
+
+void caseFourDeletion(Node* current, bool &deleted){ //add parameters
+  current->getParent()->setColor('b');
+  current->getSibling()->setColor('r');
+  if (deleted == false){
+  removeNode(current); //add parameters --> deleting sucesssor (which should be current)
+  deleted = true;
+  }
+}
+
+void caseFiveDeletion(Node* current, bool &deleted){
+  cout << "inside case 5 function" << endl;
+  if (current->getSibling()->getData() > current->getData()){
+    //double black = left child
+    cout << "double black is left child" << endl;
+    Node* tempS = current->getSibling();
+    Node* tempX = current->getSibling()->getLeft();
+    rightParentRotation(current->getSibling()->getLeft());
+    tempS->setColor('r');
+    tempX->setColor('b');
+  }
+
+  else if (current->getSibling()->getData() < current->getData()){
+    //double black = right child
+    Node* tempS = current->getSibling();
+    Node* tempX = current->getSibling()->getRight();
+    leftParentRotation(current->getSibling()->getRight());
+    tempS->setColor('r');
+    tempX->setColor('b');
+  }
+}
+
+void caseSixDeletion(Node* current, bool &deleted){
+  cout << "inside case 6 function" << endl;
+  if (current->getSibling()->getData() > current->getData()){
+    //if double black is the left child
+    Node* tempRY = current->getSibling()->getRight();
+    Node* tempP = current->getParent();
+    leftParentRotation(current);
+    tempRY->setColor('b');
+    tempP->setColor('b');
+  }
+
+  else if (current->getSibling()->getData() < current->getData()){
+    //if double black is the right child
+    Node* tempRY = current->getSibling()->getLeft();
+    Node* tempP = current->getParent();
+    rightParentRotation(current);
+    tempRY->setColor('b');
+    tempP->setColor('b');
+  }
+
+  if (deleted == false){
+  removeNode(current); //add parameters
+  deleted = true;
+  }
+}
+  
+
+Node* findSuccessor(Node* current){
+
+  if (current->getRight()!= NULL){
+  
+  Node* temp = current->getRight();
+  while (temp->getLeft() != NULL){
+    temp = temp->getLeft();
+  }
+
+  return temp;
+}
+  else if (current->getLeft() != NULL && current->getRight() == NULL){
+    return current->getLeft();
+  }
+
+  else if (current->getLeft() == NULL && current->getRight() == NULL){
+    return NULL;
+  }
+
+  else{
+    return NULL;
+  }
+}
+
+
+Node* findDeleteNode(Node* root, Node* current, int toDelete){
+  if (current->getData() == toDelete){
+    return current;
+  }
+
   else if (current->getData() > toDelete){
-    removeNode (0, current->getLeft(), toDelete);
+    findDeleteNode (root, current->getLeft(), toDelete);
   }
 
   else if (current->getData() < toDelete){
-    removeNode(1, current->getRight(),toDelete);
+    findDeleteNode(root, current->getRight(), toDelete);
   }
+
+  else {
+    return NULL;
+  }
+
+}
+
+void swap(Node* current, Node* successor){
+  //puts the data value of the successor into the current
+  int replacement = successor->getData();
+  current->setData(replacement);
 }
