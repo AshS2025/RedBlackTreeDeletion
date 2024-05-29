@@ -315,14 +315,33 @@ void rightParentRotation(Node* newNode){ //parent is a right child, newNode is a
   Node* tempTwo = newNode; //itself
   Node* tempThree = newNode->getSibling(); //sibling
   Node* tempFour = newNode->getGrandparent(); //grandparent
-  tempFour->setRight(tempTwo); //set itself to child of grandparent
-  newNode->setRight(temp); //set parent as right child of newnode
-  newNode->setLeft(tempThree); //set left child to the old sibling
+  Node* tempFive = newNode->getRight();
+  
+  if (tempFour->getLeft() == temp){
+    tempFour->setLeft(tempTwo);
+  }
+
+  else if (tempFour->getRight() == temp){
+    tempFour->setRight(tempTwo);
+  }
+
+  tempTwo->setParent(tempFour);
+    temp->setParent(newNode);
+  newNode->setRight(temp);
+  temp->setParent(newNode);
+  
   newNode->setParent(tempFour);
   if (tempThree != NULL){
-  tempThree->setParent(newNode);
+    tempThree->setParent(temp);
   }
-  temp->setParent(newNode);
+  temp->setRight(tempThree);
+
+
+  if (tempFive != NULL){
+    tempFive->setParent(temp);
+  }
+  temp->setLeft(tempFive);
+  //temp->setParent(newNode);
   
 }
 
@@ -337,14 +356,33 @@ void leftParentRotation(Node* newNode){
   Node* tempTwo = newNode; //itself
   Node* tempThree = newNode->getSibling(); // sibling
   Node* tempFour = newNode->getGrandparent(); //grandparent
-  tempFour->setLeft(tempTwo); //set itself to left child to grandparent
-  newNode->setLeft(temp); //set parent as left child of newnode
-  newNode->setRight(tempThree); //set right child of newnode to the old sibling
-  newNode->setParent(tempFour); //set parent of newnode to grandparent
-  if (tempThree != NULL){
-  tempThree->setParent(newNode); //parent of old sibling is new node
+  Node* tempFive = newNode->getLeft();
+  
+  if (tempFour->getLeft() == temp){
+    tempFour->setLeft(tempTwo);
   }
-  temp->setParent(newNode); //set parent of old parent to new node
+
+  else if (tempFour->getRight() == temp){
+    tempFour->setRight(tempTwo);
+  }
+  tempTwo->setParent(tempFour);
+  temp->setParent(newNode);
+  newNode->setLeft(temp); //set parent as left child of newnode
+  //newNode->setRight(tempThree); //set right child of newnode to the old sibling
+  newNode->setParent(tempFour); //set parent of newnode to grandparent
+
+  
+  if (tempThree != NULL){
+    tempThree->setParent(temp); //parent of old sibling is new node
+    //temp->setRight(tempThree);
+  }
+  temp->setLeft(tempThree);
+
+  if (tempFive != NULL){
+  tempFive->setParent(temp);
+  }
+  temp->setRight(tempFive);
+  
 } 
 
 void leftGrandRotation(Node* &root, Node* newNode){
@@ -428,6 +466,7 @@ void rightGrandRotation(Node* &root, Node* newNode){
 //vikram helped me rewrite my removeNode function
 void removeNode(Node* current){
     if (current->getRight() == NULL && current->getLeft() == NULL){
+      cout << "in this if statement" << endl;
       if (current->getParent() != NULL){
 	if (current->getParent()->getLeft() == current){
 	current->getParent()->setLeft(NULL);
@@ -642,12 +681,13 @@ void caseFiveDeletion(Node* current, bool &deleted){
 }
 
 void caseSixDeletion(Node* current, bool &deleted){
+  cout << "current in case 6 " << current->getData() << endl;
   cout << "inside case 6 function" << endl;
   if (current->getSibling()->getData() > current->getData()){
     //if double black is the left child
     Node* tempRY = current->getSibling()->getRight();
     Node* tempP = current->getParent();
-    leftParentRotation(current);
+    leftParentRotation(current->getSibling());
     tempRY->setColor('b');
     tempP->setColor('b');
   }
@@ -656,13 +696,15 @@ void caseSixDeletion(Node* current, bool &deleted){
     //if double black is the right child
     Node* tempRY = current->getSibling()->getLeft();
     Node* tempP = current->getParent();
-    rightParentRotation(current);
+    rightParentRotation(current->getSibling());
     tempRY->setColor('b');
     tempP->setColor('b');
   }
 
   if (deleted == false){
-  removeNode(current); //add parameters
+    cout << "getting before remove node" << endl;
+    removeNode(current); //add parameters
+    cout << "node has been removed" << endl;
   deleted = true;
   }
 }
