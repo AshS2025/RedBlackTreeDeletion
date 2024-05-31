@@ -15,8 +15,8 @@ void addNode(Node*&, Node*, Node*);
 void printTree(Node*, int);
 
 void removeNode(Node* current);
-void fixDeleteTree (Node* current, bool&);
-void deletebyCase(Node* current, bool& deleted);
+void fixDeleteTree (Node* root, Node* current, bool&);
+void deletebyCase(Node* root, Node* current, bool& deleted);
 void swap(Node*, Node*);
 Node* findDeleteNode(Node*, Node*, int);
 Node* findSuccessor(Node*);
@@ -62,7 +62,7 @@ int main(){
     cout << current->getData() << endl;
     cout << "found the node" << endl;
     bool deleted = false;
-    fixDeleteTree(current, deleted);
+    fixDeleteTree(root, current, deleted);
   }
   
   if (strcmp(command, "ADD") == 0){
@@ -208,8 +208,8 @@ void caseThreeInsertion(Node*&root, Node* newNode){
 
   tempParent->setColor('b');
   tempUncle->setColor('b');
-  //tempGrandparent->setColor('r');
-  //fixViolations(root, tempGrandparent);
+  tempGrandparent->setColor('r');
+  fixViolations(root, tempGrandparent);
 }
 
 void caseFourInsertion(Node*&root, Node* newNode){
@@ -265,6 +265,8 @@ void fixViolations(Node* &root, Node* newNode){
     cout << "uncle is null (which means its black!)" << endl;
   }
   */
+
+  if (newNode->getParent()->getParent() != NULL){
   if ((newNode->getParent()->getColor() == 'r') && (newNode->getUncle() != NULL) && (newNode->getUncle()->getColor() == 'r')){
     caseThreeInsertion(root, newNode);
   }
@@ -297,7 +299,7 @@ void fixViolations(Node* &root, Node* newNode){
   }
 
   } //end of color conditions loop
-    
+  } 
 
   //only check if two reds in a row -- 
   
@@ -310,37 +312,49 @@ void rightParentRotation(Node* newNode){ //parent is a right child, newNode is a
     parent becomes right child of newNode
     old sibling (right child of parent) becomes left child of newNode
    */
-  //cout << "in right parent rotation" << endl;
+  cout << "in right parent rotation" << endl;
   Node* temp = newNode->getParent(); //parent
   Node* tempTwo = newNode; //itself
   Node* tempThree = newNode->getSibling(); //sibling
   Node* tempFour = newNode->getGrandparent(); //grandparent
   Node* tempFive = newNode->getRight();
+
+  cout << "nodes created" << endl;
   
   if (tempFour->getLeft() == temp){
     tempFour->setLeft(tempTwo);
+    cout << "gradnparent left has been set" << endl;
   }
+ 
 
   else if (tempFour->getRight() == temp){
     tempFour->setRight(tempTwo);
+    cout << "grandparent right has been set" << endl;
   }
 
   tempTwo->setParent(tempFour);
     temp->setParent(newNode);
   newNode->setRight(temp);
   temp->setParent(newNode);
+
+  cout << "other rotation things" << endl;
   
   newNode->setParent(tempFour);
   if (tempThree != NULL){
     tempThree->setParent(temp);
+    cout << "sibling parent maintained" << endl;
   }
   temp->setRight(tempThree);
+  cout << "parent right set" << endl;
 
 
   if (tempFive != NULL){
+    
     tempFive->setParent(temp);
+    cout << "temp 5 set yay" << endl;
   }
   temp->setLeft(tempFive);
+  cout << "here" << endl;
   //temp->setParent(newNode);
   
 }
@@ -539,7 +553,7 @@ void removeNode(Node* current){
 
 
 
-void fixDeleteTree(Node* current, bool &deleted){
+void fixDeleteTree(Node* root, Node* current, bool &deleted){
   cout << "inside fixDeleteTree" << endl;
   cout << current->getData() << endl;
   
@@ -569,18 +583,18 @@ void fixDeleteTree(Node* current, bool &deleted){
   if (current->getRight() != NULL && current->getLeft() != NULL){
     Node* successor = findSuccessor(current); 
     swap(current, successor); //add parameters
-    fixDeleteTree(successor, deleted); //call on successor
+    fixDeleteTree(root, successor, deleted); //call on successor
   }
 
   if (current->getColor() == 'b' && current->getLeft() == NULL && (current->getRight() == NULL || current->getRight()->getColor() == 'b')){
     cout << "getting inside bb if statement" << endl;
-    deletebyCase(current, deleted);
+    deletebyCase(root, current, deleted);
 
   }
 
 }
 
-void deletebyCase(Node* current, bool &deleted){   
+void deletebyCase(Node* root, Node* current, bool &deleted){   
   //if root, then color current black and stop
   //put all the below cases into an else 
 //case 2
@@ -595,7 +609,8 @@ void deletebyCase(Node* current, bool &deleted){
   if (current->getParent()->getColor() == 'b' && current->getSibling()->getColor() == 'r' && (current->getSibling()->getRight() == NULL || current->getSibling()->getRight()->getColor() == 'b') && (current->getSibling()->getLeft() == NULL || current->getSibling()->getLeft()->getColor() == 'b')){
     cout << "inside case 2 if statement" << endl;
   caseTwoDeletion(current, deleted);
-  deletebyCase(current, deleted);
+  cout << "getting back here" << endl;
+  deletebyCase(root, current, deleted);
   return;
  }
 
@@ -605,7 +620,7 @@ void deletebyCase(Node* current, bool &deleted){
     Node* temp = current->getParent();
     caseThreeDeletion(current, deleted); //add parameters
     cout << "case three done" << endl;
-    deletebyCase(temp, deleted);
+    deletebyCase(root, temp, deleted);
     return;
     }
     
@@ -617,9 +632,11 @@ void deletebyCase(Node* current, bool &deleted){
 
 //case 5
 
-    if (((current->getSibling()->getData() > current->getData()) && (current->getParent()->getColor() == 'b' && current->getSibling()->getColor() == 'b' && current->getSibling()->getLeft()->getColor() == 'r' && (current->getSibling()->getRight() == NULL || current->getSibling()->getRight()->getColor() == 'b'))) || ((current->getSibling()->getData() < current->getData()) && (current->getParent()->getColor() == 'b' && current->getSibling()->getColor() == 'b' && current->getSibling()->getRight()->getColor() == 'r' && (current->getSibling()->getLeft() == NULL || current->getSibling()->getLeft()->getColor() == 'b')))) {
+    if (((current->getSibling()->getData() > current->getData()) && (current->getSibling()->getColor() == 'b' && current->getSibling()->getLeft()->getColor() == 'r' && (current->getSibling()->getRight() == NULL || current->getSibling()->getRight()->getColor() == 'b'))) || ((current->getSibling()->getData() < current->getData()) && (current->getSibling()->getColor() == 'b' && current->getSibling()->getRight()->getColor() == 'r' && (current->getSibling()->getLeft() == NULL || current->getSibling()->getLeft()->getColor() == 'b')))) {
       cout << "inside case 5 if statement" << endl;
   caseFiveDeletion(current, deleted);
+  printTree(root, 0);
+  caseSixDeletion(current, deleted);
  }
 
 
@@ -637,9 +654,10 @@ if (((current->getSibling()->getData() > current->getData()) && (current->getSib
 
 
 void caseTwoDeletion(Node* current, bool &deleted){
+  cout << "inside case 2 function" << endl;
   if (current->getSibling()->getData() > current->getData()){
     //if double black is the left child
-    cout << "inside case 2 function" << endl;
+    cout << "node is a left child" << endl;
     Node* tempS = current->getSibling();
     Node* tempP = current->getParent();
     leftParentRotation(current);
@@ -649,9 +667,11 @@ void caseTwoDeletion(Node* current, bool &deleted){
 
   else if (current->getSibling()->getData() < current->getData()){
       //if double black is the right child
+    cout << "node is a right child" << endl;
     Node* tempS = current->getSibling();
     Node* tempP = current->getParent();
     rightParentRotation(current);
+    cout << "made it after the rotation!" << endl;
     tempS->setColor('b');
     tempP->setColor('r');
     }
@@ -702,7 +722,7 @@ void caseFiveDeletion(Node* current, bool &deleted){
 }
 
 void caseSixDeletion(Node* current, bool &deleted){
-  cout << "current in case 6 " << current->getData() << endl;
+  //cout << "current in case 6 " << current->getData() << endl;
   cout << "inside case 6 function" << endl;
   if (current->getSibling()->getData() > current->getData()){
     //if double black is the left child
