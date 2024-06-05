@@ -598,11 +598,13 @@ void fixDeleteTree(Node* root, Node* current, bool &deleted){
     Node* successor = findSuccessor(current); 
     swap(current, successor); //add parameters
     fixDeleteTree(root, successor, deleted); //call on successor
+    return;
   }
 
   if (current->getColor() == 'b' && current->getLeft() == NULL && (current->getRight() == NULL || current->getRight()->getColor() == 'b')){
     cout << "getting inside bb if statement" << endl;
     deletebyCase(root, current, deleted);
+    return;
 
   }
 
@@ -653,6 +655,7 @@ void deletebyCase(Node* root, Node* current, bool &deleted){
   caseFiveDeletion(current, deleted);
   printTree(root, 0);
   caseSixDeletion(current, deleted);
+  printTree(root, 0);
   return;
  }
 
