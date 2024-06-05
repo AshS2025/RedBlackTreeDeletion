@@ -480,12 +480,13 @@ void rightGrandRotation(Node* &root, Node* newNode){
 //vikram helped me rewrite my removeNode function
 void removeNode(Node* current){
     if (current->getRight() == NULL && current->getLeft() == NULL){
-      cout << "in this if statement" << endl;
+      cout << "in no children remove function if statement" << endl;
       if (current->getParent() != NULL){
 	if (current->getParent()->getLeft() == current){
 	current->getParent()->setLeft(NULL);
       }
 	else if (current->getParent()->getRight() == current){
+	  cout << "in node is right child if stmnt" << endl;
 	current->getParent()->setRight(NULL);
       }
     }
@@ -559,25 +560,38 @@ void fixDeleteTree(Node* root, Node* current, bool &deleted){
   
   //if current is black and right child is red (and one child)
   if (current->getColor() == 'b' && current->getRight() != NULL && current->getRight()->getColor() == 'r' && current->getLeft() == NULL){
-    cout << "inside the if statement" << endl;
+    //cout << "inside the if statement" << endl;
     current->getRight()->setColor('b');
     removeNode(current); //add parameters
+    return;
   }
 
   //if current is black and left child is red (and one child)
   if (current->getColor() == 'b' && current->getLeft() != NULL && current->getLeft()->getColor() == 'r' && current->getRight() == NULL){
     current->getLeft()->setColor('b');
     removeNode(current); // add parameters
+    return;
   }
 
   //if current red and one child
   if (current->getColor() == 'r' && current->getLeft() != NULL && current->getRight() == NULL){
     removeNode(current); //add parametes
+    return;
   }
 
   if (current->getColor() == 'r' && current->getRight() != NULL && current->getLeft() == NULL){
     removeNode(current); //add parameters
+    return;
   }
+
+  //if current red and no children
+  if (current->getColor() == 'r' && current->getLeft() == NULL && current->getRight() == NULL){
+    cout << "getting inside red no children if statement" << endl;
+    removeNode(current);
+    return;
+  }
+
+  //those last three if statements should've just been combined into one why did i make three separate lol
 
   //if two children
   if (current->getRight() != NULL && current->getLeft() != NULL){
@@ -609,6 +623,7 @@ void deletebyCase(Node* root, Node* current, bool &deleted){
   if (current->getParent()->getColor() == 'b' && current->getSibling()->getColor() == 'r' && (current->getSibling()->getRight() == NULL || current->getSibling()->getRight()->getColor() == 'b') && (current->getSibling()->getLeft() == NULL || current->getSibling()->getLeft()->getColor() == 'b')){
     cout << "inside case 2 if statement" << endl;
   caseTwoDeletion(current, deleted);
+  printTree(root, 0);
   cout << "getting back here" << endl;
   deletebyCase(root, current, deleted);
   return;
@@ -628,6 +643,7 @@ void deletebyCase(Node* root, Node* current, bool &deleted){
     if (current->getParent()->getColor() == 'r' && current->getSibling()->getColor() == 'b' && (current->getSibling()->getRight() == NULL || current->getSibling()->getRight()->getColor() == 'b') && (current->getSibling()->getLeft() == NULL || current->getSibling()->getLeft()->getColor() == 'b')) {
       cout << "inside case 4 if statement" << endl;
       caseFourDeletion(current, deleted); //add parameters
+      return;
     }
 
 //case 5
@@ -637,6 +653,7 @@ void deletebyCase(Node* root, Node* current, bool &deleted){
   caseFiveDeletion(current, deleted);
   printTree(root, 0);
   caseSixDeletion(current, deleted);
+  return;
  }
 
 
@@ -645,6 +662,7 @@ void deletebyCase(Node* root, Node* current, bool &deleted){
 if (((current->getSibling()->getData() > current->getData()) && (current->getSibling()->getColor() == 'b' && current->getSibling()->getRight()->getColor() == 'r')) || ((current->getSibling()->getData() < current->getData()) && (current->getSibling()->getColor() == 'b' && current->getSibling()->getLeft()->getColor() == 'r'))){
   cout << "inside case 6 if statement" << endl;
   caseSixDeletion(current, deleted);
+  return;
  }
 
 }
@@ -660,7 +678,7 @@ void caseTwoDeletion(Node* current, bool &deleted){
     cout << "node is a left child" << endl;
     Node* tempS = current->getSibling();
     Node* tempP = current->getParent();
-    leftParentRotation(current);
+    leftParentRotation(current->getSibling());
     tempS->setColor('b');
     tempP->setColor('r');
   }
@@ -670,7 +688,7 @@ void caseTwoDeletion(Node* current, bool &deleted){
     cout << "node is a right child" << endl;
     Node* tempS = current->getSibling();
     Node* tempP = current->getParent();
-    rightParentRotation(current);
+    rightParentRotation(current->getSibling());
     cout << "made it after the rotation!" << endl;
     tempS->setColor('b');
     tempP->setColor('r');
@@ -691,6 +709,7 @@ void caseThreeDeletion(Node* current, bool &deleted){
 }
 
 void caseFourDeletion(Node* current, bool &deleted){ //add parameters
+  cout << "in case 4 deletion" << endl;
   current->getParent()->setColor('b');
   current->getSibling()->setColor('r');
   if (deleted == false){
@@ -728,18 +747,22 @@ void caseSixDeletion(Node* current, bool &deleted){
     //if double black is the left child
     Node* tempRY = current->getSibling()->getRight();
     Node* tempP = current->getParent();
+    Node* tempS = current->getSibling();
     leftParentRotation(current->getSibling());
     tempRY->setColor('b');
     tempP->setColor('b');
+    tempS->setColor('r');
   }
 
   else if (current->getSibling()->getData() < current->getData()){
     //if double black is the right child
     Node* tempRY = current->getSibling()->getLeft();
     Node* tempP = current->getParent();
+    Node* tempS = current->getSibling();
     rightParentRotation(current->getSibling());
     tempRY->setColor('b');
     tempP->setColor('b');
+    tempS->setColor('r');
   }
 
   if (deleted == false){
@@ -753,6 +776,7 @@ void caseSixDeletion(Node* current, bool &deleted){
 
 Node* findSuccessor(Node* current){
 
+  cout << "are we ever here" << endl;
   if (current->getRight()!= NULL){
   
   Node* temp = current->getRight();
